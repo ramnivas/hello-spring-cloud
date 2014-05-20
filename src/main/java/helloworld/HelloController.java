@@ -2,6 +2,8 @@ package helloworld;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,19 +15,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class HelloController {
-    @Autowired(required=false) DataSource dataSource;
-    @Autowired(required=false) RedisConnectionFactory redisConnectionFactory;
-    @Autowired(required=false) MongoDbFactory mongoDbFactory;
-    @Autowired(required=false) ConnectionFactory rabbitConnectionFactory;
-    
+    @Autowired(required = false) DataSource dataSource;
+    @Autowired(required = false) RedisConnectionFactory redisConnectionFactory;
+    @Autowired(required = false) MongoDbFactory mongoDbFactory;
+    @Autowired(required = false) ConnectionFactory rabbitConnectionFactory;
+
     @RequestMapping("/")
     public String hello(Model model) {
         System.out.println("Visiting /");
@@ -37,13 +39,14 @@ public class HelloController {
         model.addAttribute("services", services.entrySet());
         return "home";
     }
-    
+
     @RequestMapping("/env")
     public void env(HttpServletResponse response) throws IOException {
         response.setContentType("text/plain");
         PrintWriter out = response.getWriter();
         out.println("System Properties:");
-        for (Map.Entry<Object, Object> property : System.getProperties().entrySet()) {
+        for (Map.Entry<Object, Object> property : System.getProperties()
+                .entrySet()) {
             out.println(property.getKey() + ": " + property.getValue());
         }
         out.println();
@@ -52,51 +55,57 @@ public class HelloController {
             out.println(envvar.getKey() + ": " + envvar.getValue());
         }
         out.println();
-    }    
+    }
 
-    
     private String toString(DataSource dataSource) {
         if (dataSource == null) {
             return "<none>";
         } else {
-            if (ClassUtils.isPresent("org.apache.tomcat.dbcp.dbcp.BasicDataSource", ClassUtils.getDefaultClassLoader())
-                    && dataSource instanceof org.apache.tomcat.dbcp.dbcp.BasicDataSource) {
-                return ((org.apache.tomcat.dbcp.dbcp.BasicDataSource) dataSource).getUrl();
-            } else if (ClassUtils.isPresent("org.apache.commons.dbcp2.BasicDataSource", ClassUtils.getDefaultClassLoader())
-                    && dataSource instanceof org.apache.commons.dbcp2.BasicDataSource) {
-                return ((org.apache.commons.dbcp2.BasicDataSource) dataSource).getUrl();
-            } else if (dataSource instanceof SimpleDriverDataSource) {
-                return ((SimpleDriverDataSource) dataSource).getUrl();
-            } else {
-                return "<unknown>";
+            try {
+                Field urlField = ReflectionUtils.findField(dataSource.getClass(), "url");
+                ReflectionUtils.makeAccessible(urlField);
+                return (String) urlField.get(dataSource);
+            } catch (Exception fe) {
+                try {
+                    Method urlMethod = ReflectionUtils.findMethod(dataSource.getClass(), "getUrl");
+                    ReflectionUtils.makeAccessible(urlMethod);
+                    return (String) urlMethod.invoke(dataSource, (Object[])null);
+                } catch (Exception me){
+                    return "<unknown> " + dataSource.getClass();                    
+                }
             }
         }
     }
-    
+
     private String toString(MongoDbFactory mongoDbFactory) {
         if (mongoDbFactory == null) {
             return "<none>";
         } else {
-             return mongoDbFactory.getDb().getMongo().getAddress().toString();
+            return mongoDbFactory.getDb().getMongo().getAddress().toString();
         }
     }
-    
+
     private String toString(RedisConnectionFactory redisConnectionFactory) {
         if (redisConnectionFactory == null) {
-            return "<none>";            
+            return "<none>";
         } else {
-            return ((JedisConnectionFactory) redisConnectionFactory).getHostName().toString() + ":" + 
-                   ((JedisConnectionFactory) redisConnectionFactory).getPort();
+            if (redisConnectionFactory instanceof JedisConnectionFactory) {
+                JedisConnectionFactory jcf = (JedisConnectionFactory) redisConnectionFactory;
+                return jcf.getHostName().toString() + ":" + jcf.getPort();
+            } else if (redisConnectionFactory instanceof LettuceConnectionFactory) {
+                LettuceConnectionFactory lcf = (LettuceConnectionFactory) redisConnectionFactory;
+                return lcf.getHostName().toString() + ":" + lcf.getPort();
+            }
+            return "<unknown> " + redisConnectionFactory.getClass();
         }
-
     }
-    
+
     private String toString(ConnectionFactory rabbitConnectionFactory) {
         if (rabbitConnectionFactory == null) {
-            return "<none>";            
+            return "<none>";
         } else {
-            return rabbitConnectionFactory.getHost() + ":" + rabbitConnectionFactory.getPort();
+            return rabbitConnectionFactory.getHost() + ":"
+                    + rabbitConnectionFactory.getPort();
         }
-
     }
 }

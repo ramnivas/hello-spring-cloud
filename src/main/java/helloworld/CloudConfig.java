@@ -1,15 +1,13 @@
 package helloworld;
 
-import javax.sql.DataSource;
-
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.cloud.config.java.AbstractCloudConfig;
-import org.springframework.context.annotation.Bean;
+import org.springframework.cloud.config.java.ServiceScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.MongoDbFactory;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
+@ServiceScan
+//@Profile("cloud")
 public class CloudConfig extends AbstractCloudConfig {
 //    @Bean
 //    public ConnectionFactory rabbitConnectionFactory() {
