@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan
 @ServiceScan
-@EnableAutoConfiguration(exclude={RabbitAutoConfiguration.class})
+@EnableAutoConfiguration
 public class Application {
 
     public static void main(String[] args) {

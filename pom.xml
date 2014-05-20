@@ -106,7 +106,7 @@
 		<start-class>helloworld.Application</start-class>
 		<java.version>1.7</java.version>
 		
-		<spring-cloud.version>1.0.0.RC1</spring-cloud.version>
+		<spring-cloud.version>1.0.0.BUILD-SNAPSHOT</spring-cloud.version>
 		
 		<commons-dbcp2.version>2.0</commons-dbcp2.version>
 		
