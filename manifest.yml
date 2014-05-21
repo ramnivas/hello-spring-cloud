@@ -11,3 +11,5 @@ applications:
     - cloudamqp-service
     - mongolab-service
     - rediscloud-service
+  env:
+    SPRING_PROFILES_DEFAULT: cloud

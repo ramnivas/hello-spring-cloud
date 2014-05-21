@@ -30,7 +30,6 @@ public class HelloController {
 
     @RequestMapping("/")
     public String hello(Model model) {
-        System.out.println("Visiting /");
         Map<String, String> services = new LinkedHashMap<String, String>();
         services.put("Data Source", toString(dataSource));
         services.put("MongoDB", toString(mongoDbFactory));
@@ -81,7 +80,11 @@ public class HelloController {
         if (mongoDbFactory == null) {
             return "<none>";
         } else {
-            return mongoDbFactory.getDb().getMongo().toString();
+            try {
+                return mongoDbFactory.getDb().getMongo().getAddress().toString();
+            } catch (Exception ex) {
+                return "<invalid address> " + mongoDbFactory.getDb().getMongo().toString();
+            }
         }
     }
 

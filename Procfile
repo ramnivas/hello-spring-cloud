@@ -1,2 +1,2 @@
-web: java $JAVA_OPTS -jar target/*.jar
+web: java $JAVA_OPTS -Dspring.profiles.active=cloud -jar target/*.jar
 
