@@ -81,7 +81,7 @@ public class HelloController {
         if (mongoDbFactory == null) {
             return "<none>";
         } else {
-            return mongoDbFactory.getDb().getMongo().getAddress().toString();
+            return mongoDbFactory.getDb().getMongo().toString();
         }
     }
 
