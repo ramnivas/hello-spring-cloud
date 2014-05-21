@@ -12,10 +12,11 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan
-@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class, 
-                                  MongoAutoConfiguration.class, MongoTemplateAutoConfiguration.class,
-                                  RedisAutoConfiguration.class,
-                                  RabbitAutoConfiguration.class})
+@EnableAutoConfiguration
+//@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class, 
+//                                  MongoAutoConfiguration.class, MongoTemplateAutoConfiguration.class,
+//                                  RedisAutoConfiguration.class,
+//                                  RabbitAutoConfiguration.class})
 public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

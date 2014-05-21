@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @ServiceScan
-//@Profile("cloud")
+@Profile("cloud")
 public class CloudConfig extends AbstractCloudConfig {
 //    @Bean
 //    public ConnectionFactory rabbitConnectionFactory() {
