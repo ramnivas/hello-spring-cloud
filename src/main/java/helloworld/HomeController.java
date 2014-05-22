@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.app.ApplicationInstanceInfo;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -22,20 +23,25 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class HelloController {
+public class HomeController {
     @Autowired(required = false) DataSource dataSource;
     @Autowired(required = false) RedisConnectionFactory redisConnectionFactory;
     @Autowired(required = false) MongoDbFactory mongoDbFactory;
     @Autowired(required = false) ConnectionFactory rabbitConnectionFactory;
+    
+    @Autowired ApplicationInstanceInfo instanceInfo;
 
     @RequestMapping("/")
-    public String hello(Model model) {
+    public String home(Model model) {
         Map<String, String> services = new LinkedHashMap<String, String>();
         services.put("Data Source", toString(dataSource));
         services.put("MongoDB", toString(mongoDbFactory));
         services.put("Redis", toString(redisConnectionFactory));
         services.put("RabbitMQ", toString(rabbitConnectionFactory));
         model.addAttribute("services", services.entrySet());
+        
+        model.addAttribute("instanceInfo", instanceInfo);
+        
         return "home";
     }
 

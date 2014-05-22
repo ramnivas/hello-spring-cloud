@@ -5,10 +5,21 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
-	<h1>Cloud Services</h1>
+	<h1>Spring Cloud Demo Application</h1>
+	
+	<h2>Cloud Services</h2>
 	<ul>
 		<li th:each="service : ${services}">
     			<p th:text="|${service.key} : ${service.value}|" />
+    		</li>
+    </ul>
+    
+    <h2>Application Instance Info</h2>
+    <p th:text="|InstanceId: ${instanceInfo.instanceId}"/>
+    <p th:text="|AppId: ${instanceInfo.appId}"/>
+	<ul>
+		<li th:each="prop : ${instanceInfo.properties}">
+    			<p th:text="|${prop.key} : ${prop.value}|" />
     		</li>
     </ul>
 </body>
