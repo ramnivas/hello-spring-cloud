@@ -1,13 +1,14 @@
 package helloworld;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -45,23 +46,6 @@ public class HomeController {
         return "home";
     }
 
-    @RequestMapping("/env")
-    public void env(HttpServletResponse response) throws IOException {
-        response.setContentType("text/plain");
-        PrintWriter out = response.getWriter();
-        out.println("System Properties:");
-        for (Map.Entry<Object, Object> property : System.getProperties()
-                .entrySet()) {
-            out.println(property.getKey() + ": " + property.getValue());
-        }
-        out.println();
-        out.println("System Environment:");
-        for (Map.Entry<String, String> envvar : System.getenv().entrySet()) {
-            out.println(envvar.getKey() + ": " + envvar.getValue());
-        }
-        out.println();
-    }
-
     private String toString(DataSource dataSource) {
         if (dataSource == null) {
             return "<none>";
@@ -69,16 +53,30 @@ public class HomeController {
             try {
                 Field urlField = ReflectionUtils.findField(dataSource.getClass(), "url");
                 ReflectionUtils.makeAccessible(urlField);
-                return (String) urlField.get(dataSource);
+                return stripCredentials((String) urlField.get(dataSource));
             } catch (Exception fe) {
                 try {
                     Method urlMethod = ReflectionUtils.findMethod(dataSource.getClass(), "getUrl");
                     ReflectionUtils.makeAccessible(urlMethod);
-                    return (String) urlMethod.invoke(dataSource, (Object[])null);
+                    return stripCredentials((String) urlMethod.invoke(dataSource, (Object[])null));
                 } catch (Exception me){
                     return "<unknown> " + dataSource.getClass();                    
                 }
             }
+        }
+    }
+    
+    private String stripCredentials(String urlString) {
+        try {
+            if (urlString.startsWith("jdbc:")) {
+                urlString = urlString.substring("jdbc:".length());
+            }
+            URI url = new URI(urlString);
+            return new URI(url.getScheme(), null, url.getHost(), url.getPort(), url.getPath(), null, null).toString();
+        }
+        catch (URISyntaxException e) {
+            System.out.println(e);
+            return "<bad url> " + urlString;
         }
     }
 
