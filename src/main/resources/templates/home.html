@@ -3,24 +3,48 @@
 <head>
     <title>Getting Started: Serving Web Content</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"/>
 </head>
 <body>
-	<h1>Spring Cloud Demo Application</h1>
-	
-	<h2>Cloud Services</h2>
-	<ul>
-		<li th:each="service : ${services}">
-    			<p th:text="|${service.key} : ${service.value}|" />
-    		</li>
-    </ul>
-    
-    <h2>Application Instance Info</h2>
-    <p th:text="|InstanceId: ${instanceInfo.instanceId}"/>
-    <p th:text="|AppId: ${instanceInfo.appId}"/>
-	<ul>
-		<li th:each="prop : ${instanceInfo.properties}">
-    			<p th:text="|${prop.key} : ${prop.value}|" />
-    		</li>
-    </ul>
+	<div class="container">
+		<br/>
+		<div class="jumbotron">
+	    	    <h1>Spring Cloud Demo Application</h1>
+			<p>A <a href="http://github.com/cloudfoundry-samples/hello-spring-cloud">Spring application</a> 
+			   that uses <a href="http://projects.spring.io/spring-cloud">Spring Cloud</a> to connect to 
+			   cloud services and get information about cloud environment</p>
+		</div>
+		<h2>Cloud Services</h2>
+		<table class="table table-striped">
+			<tr th:each="service : ${services}">
+				<td><strong th:text="${service.key}"></strong></td>
+	    			<td th:text="${service.value}" />
+	    		</tr>
+	    </table>
+	    
+	    <h2>Application Instance Info</h2>
+	    <div class="row">
+	    		<strong class="col-sm-3">App Id:</strong>
+	    		<p class="col-sm-9" th:text="${instanceInfo.appId}">appId</p>
+	    </div>
+	    <div class="row">
+	    		<strong class="col-sm-3">Instance Id:</strong>	    
+	    		<p class="col-sm-9" th:text="${instanceInfo.instanceId}">instanceId</p>
+	    </div>
+	    <div class="row">
+	    		<strong class="col-sm-3">Properties:</strong>
+	    		<div class="col-sm-9">	    
+				<table class="table table-striped">
+					<tr th:each="prop : ${instanceInfo.properties}">
+						<td><strong th:text="${prop.key}"></strong></td>				
+			    			<td th:text="${prop.value}" />
+			    		</tr>
+			    </table>
+		    </div>
+	    </div>
+	    
+	    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	</div>    
 </body>
 </html>
