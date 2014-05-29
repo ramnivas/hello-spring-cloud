@@ -2,10 +2,8 @@ package helloworld;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -34,18 +32,18 @@ public class HomeController {
 
     @RequestMapping("/")
     public String home(Model model) {
-        Map<String, String> services = new LinkedHashMap<String, String>();
-        services.put("Data Source", toString(dataSource));
-        services.put("MongoDB", toString(mongoDbFactory));
-        services.put("Redis", toString(redisConnectionFactory));
-        services.put("RabbitMQ", toString(rabbitConnectionFactory));
+        Map<Class<?>, String> services = new LinkedHashMap<Class<?>, String>();
+        services.put(dataSource.getClass(), toString(dataSource));
+        services.put(mongoDbFactory.getClass(), toString(mongoDbFactory));
+        services.put(redisConnectionFactory.getClass(), toString(redisConnectionFactory));
+        services.put(rabbitConnectionFactory.getClass(), toString(rabbitConnectionFactory));
         model.addAttribute("services", services.entrySet());
         
         model.addAttribute("instanceInfo", instanceInfo);
         
         return "home";
     }
-
+    
     private String toString(DataSource dataSource) {
         if (dataSource == null) {
             return "<none>";
@@ -66,20 +64,6 @@ public class HomeController {
         }
     }
     
-    private String stripCredentials(String urlString) {
-        try {
-            if (urlString.startsWith("jdbc:")) {
-                urlString = urlString.substring("jdbc:".length());
-            }
-            URI url = new URI(urlString);
-            return new URI(url.getScheme(), null, url.getHost(), url.getPort(), url.getPath(), null, null).toString();
-        }
-        catch (URISyntaxException e) {
-            System.out.println(e);
-            return "<bad url> " + urlString;
-        }
-    }
-
     private String toString(MongoDbFactory mongoDbFactory) {
         if (mongoDbFactory == null) {
             return "<none>";
@@ -115,4 +99,19 @@ public class HomeController {
                     + rabbitConnectionFactory.getPort();
         }
     }
+    
+    private String stripCredentials(String urlString) {
+        try {
+            if (urlString.startsWith("jdbc:")) {
+                urlString = urlString.substring("jdbc:".length());
+            }
+            URI url = new URI(urlString);
+            return new URI(url.getScheme(), null, url.getHost(), url.getPort(), url.getPath(), null, null).toString();
+        }
+        catch (URISyntaxException e) {
+            System.out.println(e);
+            return "<bad url> " + urlString;
+        }
+    }
+
 }
